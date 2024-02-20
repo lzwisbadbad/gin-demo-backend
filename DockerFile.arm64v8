@@ -1,0 +1,12 @@
+FROM arm64v8/golang:1.20.11 as builder
+ENV GOPROXY=https://goproxy.cn,direct
+ENV GONOSUMDB=chainmaker.org
+COPY . /gin-backend
+RUN cd /gin-backend/src && go build -o gin-backend
+
+FROM arm64v8/ubuntu:20.04
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
+COPY --from=builder /gin-backend/src/gin-backend /gin-backend/src/gin-backend
+WORKDIR /gin-backend
+VOLUME [ "/gin-backend/log" ,"/gin-backend/conf"]
